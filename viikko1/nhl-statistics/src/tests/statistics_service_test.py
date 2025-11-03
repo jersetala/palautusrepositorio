@@ -1,5 +1,5 @@
 import unittest
-from statistics_service import StatisticsService
+from statistics_service import StatisticsService, SortBy
 from player import Player
 
 class PlayerReaderStub:
@@ -11,6 +11,13 @@ class PlayerReaderStub:
             Player("Yzerman", "DET", 42, 56), # 42+56 = 98
             Player("Gretzky", "EDM", 35, 89)  # 35+89 = 124
         ]
+
+def compare_player_list(players1, players2):
+    return all(
+        [x.__dict__ == y.__dict__ for (x, y) in 
+        zip(players1, players2)]
+    )
+
 
 class TestStatisticsService(unittest.TestCase):
     def setUp(self):
@@ -57,9 +64,29 @@ class TestStatisticsService(unittest.TestCase):
         ]
 
         self.assertTrue(
-            all(
-                [x.__dict__ == y.__dict__ for (x, y) in 
-                 zip(players, right_players)]
-            )
+            compare_player_list(players, right_players)
         )
-                
+    
+    def test_top_players_goals(self):
+        players = self.stats.top(3, SortBy.GOALS)
+        right_players = [
+            Player("Lemieux", "PIT", 45, 54),
+            Player("Yzerman", "DET", 42, 56),
+            Player("Kurri",   "EDM", 37, 53)
+        ]
+
+        self.assertTrue(
+            compare_player_list(players, right_players)
+        )
+
+    def test_top_players_assists(self):
+        players = self.stats.top(3, SortBy.ASSISTS)
+        right_players = [
+            Player("Gretzky", "EDM", 35, 89),
+            Player("Yzerman", "DET", 42, 56),
+            Player("Lemieux", "PIT", 45, 54)
+        ]
+
+        self.assertTrue(
+            compare_player_list(players, right_players)
+        )
