@@ -14,11 +14,19 @@ def main():
         player = Player(player_dict)
         players.append(player)
 
-    print("Players from FIN:")
+    finnish_players = sorted(
+        filter(
+            lambda x: x.nationality == "FIN",
+            players
+        ),
+        key=lambda x: x.goals + x.assists,
+        reverse=True
+    )
 
-    for player in players:
-        if player.nationality == "FIN":
-            print(player)
+    print("Players from FIN:\n")
+
+    for player in finnish_players:
+        print(player)
 
 if __name__ == '__main__':
     main()
