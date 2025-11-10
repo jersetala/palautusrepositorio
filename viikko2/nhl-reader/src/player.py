@@ -16,14 +16,19 @@ class Player:
 class PlayerReader:
     def __init__(self, url: str):
         self.url = url
+        self.players: list[Player]|None = None
 
     def get_players(self) -> list[Player]:
+        if self.players:
+            return self.players
         players: list[Player] = []
         re = requests.get(self.url).json()
 
         for player_dict in re:
             player = Player(player_dict)
             players.append(player)
+
+        self.players = players
 
         return players
 
