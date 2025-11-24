@@ -129,3 +129,35 @@ class TestKauppa(unittest.TestCase):
         kauppa.tilimaksu("markku", "99999")
 
         pankki_mock.tilisiirto.assert_called_with("markku", 42, "99999", ANY, 7+7)
+
+    def test_varastossa_olevan_ja_olemattoman_osto_kutsuu_pankin_metodia_tilisiirto_oikein(self):
+        pankki_mock = Mock()
+        viitegeneraattori_mock = Mock()
+
+        viitegeneraattori_mock.uusi.return_value = 42
+
+        varasto_mock = Mock()
+
+        def varasto_saldo(tuote_id):
+            if tuote_id == 1:
+                return 1
+            elif tuote_id == 2:
+                return 0
+
+        def varasto_hae_tuote(tuote_id):
+            if tuote_id == 1:
+                return Tuote(1, "Pekoni", 7)
+            elif tuote_id == 2:
+                return Tuote(2, "Kananmuna", 3)
+
+        varasto_mock.saldo.side_effect = varasto_saldo
+        varasto_mock.hae_tuote.side_effect = varasto_hae_tuote
+
+        kauppa = Kauppa(varasto_mock, pankki_mock, viitegeneraattori_mock)
+
+        kauppa.aloita_asiointi()
+        kauppa.lisaa_koriin(1)
+        kauppa.lisaa_koriin(2)
+        kauppa.tilimaksu("vesa", "00000")
+
+        pankki_mock.tilisiirto.assert_called_with("vesa", 42, "00000", ANY, 7)
