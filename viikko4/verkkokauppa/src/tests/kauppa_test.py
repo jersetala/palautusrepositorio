@@ -101,3 +101,31 @@ class TestKauppa(unittest.TestCase):
         kauppa.tilimaksu("juuso", "11235")
 
         pankki_mock.tilisiirto.assert_called_with("juuso", 42, "11235", ANY, 10 + 20)
+
+    def test_useamman_varastossa_olevan_asian_osto_kutsuu_pankin_metodia_tilisiirto_oikein(self):
+        pankki_mock = Mock()
+        viitegeneraattori_mock = Mock()
+
+        viitegeneraattori_mock.uusi.return_value = 42
+
+        varasto_mock = Mock()
+
+        def varasto_saldo(tuote_id):
+            if tuote_id == 1:
+                return 2
+
+        def varasto_hae_tuote(tuote_id):
+            if tuote_id == 1:
+                return Tuote(1, "Hiiva", 7)
+
+        varasto_mock.saldo.side_effect = varasto_saldo
+        varasto_mock.hae_tuote.side_effect = varasto_hae_tuote
+
+        kauppa = Kauppa(varasto_mock, pankki_mock, viitegeneraattori_mock)
+
+        kauppa.aloita_asiointi()
+        kauppa.lisaa_koriin(1)
+        kauppa.lisaa_koriin(1)
+        kauppa.tilimaksu("markku", "99999")
+
+        pankki_mock.tilisiirto.assert_called_with("markku", 42, "99999", ANY, 7+7)
