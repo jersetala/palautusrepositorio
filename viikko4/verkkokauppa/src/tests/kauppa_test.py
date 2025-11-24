@@ -123,3 +123,16 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.lisaa_koriin(1)
         self.kauppa.tilimaksu("ilta", "66666")
         self.pankki_mock.tilisiirto.assert_called_with("ilta", ANY, "66666", ANY, 2)
+
+    def test_uusi_viitenumero_jokaisella_asioinnilla(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("none", "11111")
+
+        self.viitegeneraattori_mock.uusi.assert_called()
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.tilimaksu("none", "22222")
+
+        self.viitegeneraattori_mock.uusi.assert_called()
