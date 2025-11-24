@@ -110,3 +110,16 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.tilimaksu("vesa", "00000")
 
         self.pankki_mock.tilisiirto.assert_called_with("vesa", 1, "00000", ANY, 2+3)
+
+    def test_aloita_asiointi_nollaa_tiedot(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("aamu", "55555")
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("ilta", "66666")
+        self.pankki_mock.tilisiirto.assert_called_with("ilta", ANY, "66666", ANY, 2)
